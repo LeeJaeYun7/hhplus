@@ -135,9 +135,8 @@ public class PointServiceTest {
             ReentrantLock lock = new ReentrantLock();
             lockMap.put(id, lock);  // 미리 맵에 락을 넣어둠
 
-            long amountToCharge = 500L;
-
             // When
+            long amountToCharge = 500L;
             UserPoint result = pointService.chargeUserPoint(id, amountToCharge);
 
             // Then
