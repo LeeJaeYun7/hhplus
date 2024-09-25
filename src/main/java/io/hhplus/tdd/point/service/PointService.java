@@ -35,13 +35,18 @@ public class PointService {
         lockMap.putIfAbsent(id, new ReentrantLock());
         return lockMap.get(id);
     }
-    public UserPoint chargeUserPoint(long id, long amount){
+
+    public UserPoint chargeUserPoint(long id, long amount) throws Exception {
         Lock lock = getLockForId(id);
         lock.lock();
 
         try {
             UserPoint userPoint = userPointTable.selectById(id);
             long currPoint = userPoint.point();
+
+            if(currPoint + amount >= 10000){
+                throw new Exception("포인트가 최대 잔고인 10000원 이상입니다.");
+            }
 
             userPointTable.insertOrUpdate(id, currPoint + amount);
             pointHistoryTable.insert(id, amount, TransactionType.CHARGE, System.currentTimeMillis());
@@ -61,7 +66,7 @@ public class PointService {
             long currPoint = userPoint.point();
 
             if (currPoint < amount) {
-                throw new Exception();
+                throw new Exception("포인트가 부족합니다.");
             }
 
             userPointTable.insertOrUpdate(id, currPoint - amount);

@@ -120,7 +120,7 @@ public class PointServiceTest {
     @DisplayName("포인트를 충전할때")
     class 포인트를_충전할때 {
         @Test
-        public void 포인트_충전에_성공한다() {
+        public void 포인트_충전에_성공한다() throws Exception {
 
             // Given
             long id = 1L;
@@ -136,6 +136,21 @@ public class PointServiceTest {
             // Then
             assertNotNull(result);  // 결과가 null이 아닌지 확인
             assertEquals(1500L, result.point());  // 최종 포인트가 1500인지 확인
+        }
+
+        @Test
+        public void 포인트_충전에_실패한다() throws Exception {
+
+            // Given
+            long id = 1L;
+            pointTable.insertOrUpdate(id, 1000L);
+
+            ReentrantLock lock = new ReentrantLock();
+            lockMap.put(id, lock);  // 미리 맵에 락을 넣어둠
+
+            // When
+            long amountToCharge = 10500L;
+            assertThrows(Exception.class, () -> pointService.chargeUserPoint(id, amountToCharge));
         }
     }
 
@@ -182,7 +197,7 @@ public class PointServiceTest {
     @DisplayName("포인트 충전과 사용이 동시에 요청될때")
     class 포인트_충전과_사용이_동시에_요청될때 {
         @Test
-        public void 포인트_충전과_사용이_동시에_요청될때_성공한다() throws InterruptedException, ExecutionException {
+        public void 포인트_충전과_사용이_동시에_요청될때_성공한다() throws Exception {
             long id = 1L;
             long initialAmount = 1000L;
 
