@@ -6,6 +6,7 @@ import io.hhplus.tdd.point.PointHistory;
 import io.hhplus.tdd.point.TransactionType;
 import io.hhplus.tdd.point.UserPoint;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,6 +37,7 @@ public class PointService {
         return lockMap.get(id);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public UserPoint chargeUserPoint(long id, long amount) throws Exception {
         Lock lock = getLockForId(id);
         lock.lock();
@@ -57,6 +59,7 @@ public class PointService {
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public UserPoint useUserPoint(long id, long amount) throws Exception {
         Lock lock = getLockForId(id);
         lock.lock();
