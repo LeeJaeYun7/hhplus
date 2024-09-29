@@ -18,4 +18,4 @@
 
 
 ### 동시성 제어 분석 보고서
-동시성 제어 방식에 대한 상세한 분석 및 보고서는 [CONCURRENCY_CONTROL.md] (https://github.com/LeeJaeYun7/hhplus-week-01/blob/master/CONCURRENCY_CONTROL.md) 파일에서 확인할 수 있습니다.
+동시성 제어 방식에 대한 상세한 분석 및 보고서는 [CONCURRENCY_CONTROL.md](https://github.com/LeeJaeYun7/hhplus-week-01/blob/master/CONCURRENCY_CONTROL.md) 파일에서 확인할 수 있습니다.
