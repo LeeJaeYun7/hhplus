@@ -24,21 +24,25 @@
 
 ### 3. 과제에서 발생할 수 있는 동시성 이슈 (lost update)
 - lost update <br>
-- ![image](https://github.com/user-attachments/assets/70681889-9af7-4043-ac84-83d2bb0dfd66)
+  ![image](https://github.com/user-attachments/assets/70681889-9af7-4043-ac84-83d2bb0dfd66)
 
 
 위의 이미지는 lost update 문제를 설명한 것이다.
 
-Charge 메서드의 동시 실행: 하나의 userId에 대해 여러 스레드가 동시에 Charge 메서드를 실행할 때, Lost Update 문제가 발생할 수 있고 history가 순차적으로 저장되지 않을 수 있다.
+Charge 메서드의 동시 실행: 하나의 userId에 대해 여러 스레드가 동시에 Charge 메서드를 실행할 때,<br> 
+                          Lost Update 문제가 발생할 수 있고 history가 순차적으로 저장되지 않을 수 있다. <br>
 
-Use 메서드의 동시 실행: 하나의 userId에 대해 여러 스레드가 동시에 Use 메서드를 실행할 때, Lost Update 문제가 발생할 수 있고 history가 순차적으로 저장되지 않을 수 있다.
+Use 메서드의 동시 실행: 하나의 userId에 대해 여러 스레드가 동시에 Use 메서드를 실행할 때,<br> 
+                             Lost Update 문제가 발생할 수 있고 history가 순차적으로 저장되지 않을 수 있다. <br>
 
-Charge와 Use 메서드의 동시 실행: Charge와 Use 메서드가 동시에 실행될 때, 데이터 일관성 문제가 발생할 수 있고 history가 순차적으로 저장되지 않을 수 있다.
+Charge와 Use 메서드의 동시 실행: Charge와 Use 메서드가 동시에 실행될 때,<br> 
+                               데이터 일관성 문제가 발생할 수 있고 history가 순차적으로 저장되지 않을 수 있다. <br> 
 
-3. 자바에서의 동시성 제어 방법
-자바는 다양한 동시성 제어 메커니즘을 제공한다.
-PointServiceImpl 클래스를 예시로, 다양한 동시성 제어 방법 적용을 통해 동시성 이슈를 해결하는 방법을 살펴보자.
+### 4. 자바에서의 동시성 제어 방법
+- 자바는 다양한 동시성 제어 메커니즘을 제공한다. <br> 
+- PointServiceImpl 클래스를 예시로, 다양한 동시성 제어 방법 적용을 통해 동시성 이슈를 해결하는 방법을 살펴보자. <br> 
 
+```
 @Service
 @RequiredArgsConstructor
 public class PointServiceImpl implements PointService {
@@ -85,14 +89,18 @@ public class PointServiceImpl implements PointService {
     return pointHistoryRepository.findAllByUserId(command.userId());
   }
 }
-3.1 synchronized 키워드
-synchronized 키워드는 자바의 가장 기본적인 동기화 방법이다.
+```
 
-특징
-간단하고 직관적인 사용법
-메서드 전체 또는 특정 블록에 적용 가능
-자동으로 lock 획득 및 해제
-상세 예시
+#### 4.1 synchronized 키워드
+- synchronized 키워드는 자바의 가장 기본적인 동기화 방법이다. <br> 
+
+(1) 특징
+- 간단하고 직관적인 사용법
+- 메서드 전체 또는 특정 블록에 적용 가능
+- 자동으로 lock 획득 및 해제
+- 상세 예시
+
+```
 @Service
 @RequiredArgsConstructor
 public class SynchronizedPointServiceImpl implements PointService {
@@ -130,7 +138,9 @@ public class SynchronizedPointServiceImpl implements PointService {
 
     // getUserPoint와 getUserPointHistories 메서드는 읽기 전용이므로 동기화 불필요
 }
-이 방식은 charge와 use 메서드에 synchronized 키워드를 추가하여 한 번에 하나의 스레드만 이 메서드들을 실행할 수 있도록 한다.
+```
+
+- 이 방식은 charge와 use 메서드에 synchronized 키워드를 추가하여 한 번에 하나의 스레드만 이 메서드들을 실행할 수 있도록 한다.<br> 
 
 3.2 ReentrantLock
 ReentrantLock은 더 유연한 lock 메커니즘을 제공한다.
