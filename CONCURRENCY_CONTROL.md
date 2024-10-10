@@ -72,7 +72,7 @@ public class PointService {
         return pointHistoryTable.selectAllByUserId(id);
     }
 
-    public synchronized UserPoint chargeUserPoint(long id, long amount){
+    public UserPoint chargeUserPoint(long id, long amount){
         UserPoint userPoint = userPointTable.selectById(id);
         long currPoint = userPoint.point();
 
@@ -82,7 +82,7 @@ public class PointService {
         return userPointTable.selectById(id);
     }
 
-    public synchronized UserPoint useUserPoint(long id, long amount) throws Exception {
+    public UserPoint useUserPoint(long id, long amount) throws Exception {
         UserPoint userPoint = userPointTable.selectById(id);
         long currPoint = userPoint.point();
 
