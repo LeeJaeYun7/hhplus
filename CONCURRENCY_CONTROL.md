@@ -201,17 +201,19 @@ public class ReentrantLockPointServiceImpl implements PointService {
 }
 ```
 
-이 예시에서는 ReentrantLock을 사용하여 더 세밀한 제어를 가능하게 한다.
-try-finally 블록을 사용하여 예외 발생 시에도 반드시 lock이 해제되도록 보장한다.
+이 예시에서는 ReentrantLock을 사용하여 더 세밀한 제어를 가능하게 한다. <br>
+try-finally 블록을 사용하여 예외 발생 시에도 반드시 lock이 해제되도록 보장한다. <br>
 
-3.3 Atomic 클래스
-Atomic 클래스는 원자적 연산을 제공하여 동시성 문제를 해결한다. 이 경우, UserPoint 클래스를 수정하여 AtomicInteger를 사용해야 한다.
+#### 4.3 Atomic 클래스
+- Atomic 클래스는 원자적 연산을 제공하여 동시성 문제를 해결한다. 이 경우, UserPoint 클래스를 수정하여 AtomicInteger를 사용해야 한다.
 
-특징:
-CAS(Compare-And-Swap) 알고리즘 기반
-lock-free 구현으로 성능 향상
-상세 예시:
+(1)특징
+- CAS(Compare-And-Swap) 알고리즘 기반
+- lock-free 구현으로 성능 향상
+
+##### 상세 예시:
 이전 UserPoint 클래스
+```
 public record UserPoint(
     long id,
     long point,
@@ -256,7 +258,9 @@ public record UserPoint(
     return new UserPoint(id, point - amount, System.currentTimeMillis());
   }
 }
+```
 예시
+```
 public class AtomicUserPoint {
 
   @Getter
@@ -324,19 +328,21 @@ public class AtomicUserPoint {
   public long getPoint() {
     return point.get();
   }
-
 }
-이 예시에서는 AtomicInteger를 사용하여 잔액을 관리한다.
-compareAndSet() 메서드를 사용하여 원자적 연산을 수행하므로, 별도의 동기화 없이도 스레드 안전성을 보장한다.
+```
+- 이 예시에서는 AtomicInteger를 사용하여 잔액을 관리한다.
+- compareAndSet() 메서드를 사용하여 원자적 연산을 수행하므로, 별도의 동기화 없이도 스레드 안전성을 보장한다.
 
-3.4 ConcurrentHashMap
-ConcurrentHashMap은 동시성을 지원하는 HashMap 구현체다.
+#### 4.4 ConcurrentHashMap
+- ConcurrentHashMap은 동시성을 지원하는 HashMap 구현체다. <br>
 
-특징:
-세그먼트 단위의 lock 사용으로 성능 향상
-동시 읽기 작업에 대해 lock 불필요
-안전한 동시성 보장
-상세 예시:
+(1) 특징
+- 세그먼트 단위의 lock 사용으로 성능 향상
+- 동시 읽기 작업에 대해 lock 불필요
+- 안전한 동시성 보장
+
+##### 상세 예시
+```
 @Service
 @RequiredArgsConstructor
 public class ConcurrentHashMapPointPointServiceImpl implements PointService {
@@ -389,9 +395,12 @@ public class ConcurrentHashMapPointPointServiceImpl implements PointService {
 
   // getUserPoint와 getUserPointHistories 메서드는 읽기 전용이므로 동기화 불필요
 }
-이 예시에서는 ConcurrentHashMap을 사용하여 userId 별로 lock을 관리한다. computeIfAbsent() 메서드를 사용하여 userId에 대한 lock이 없을 경우 새로운 lock을 생성한다.
+```
+- 이 예시에서는 ConcurrentHashMap을 사용하여 userId 별로 lock을 관리한다. <br>
+  computeIfAbsent() 메서드를 사용하여 userId에 대한 lock이 없을 경우 새로운 lock을 생성한다. <br> 
 
-4. 비교
+
+#### 5. 비교
 synchronized, ReentrantLock, Atomic 클래스, ConcurrentHashMap 등 다양한 동시성 제어 방법이 있지만, 각 방법은 장단점이 있다. 각 성능 비교를 위해 charge 메서드를 100번 호출하는 테스트를 수행하였다.
 
 synchronized
