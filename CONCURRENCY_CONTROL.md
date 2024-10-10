@@ -267,7 +267,8 @@ public class PointService {
 - try-finally 블록을 사용하여 예외 발생 시에도 반드시 lock이 해제되도록 보장한다. <br>
 
 #### 4.3 Atomic 클래스
-- Atomic 클래스는 원자적 연산을 제공하여 동시성 문제를 해결한다. 이 경우, UserPoint 클래스를 수정하여 AtomicInteger를 사용해야 한다.
+- Atomic 클래스는 원자적 연산을 제공하여 동시성 문제를 해결한다. <br> 
+-> 이 경우, UserPoint 클래스를 수정하여 AtomicInteger를 사용해야 한다.
 
 (1)특징
 - CAS(Compare-And-Swap) 알고리즘 기반 <br>
