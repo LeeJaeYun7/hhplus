@@ -437,7 +437,8 @@ public class ConcurrentHashMapPointPointServiceImpl implements PointService {
 
 #### 6. 결론
 - 단일 userId에 대해선 성능 차이가 크게 나타나지 않았지만, <br>
-  다중 userId에 대해선 ConcurrentHashMap로 구현할 경우 다른 userId에 대한 blocking이 발생하지 않아 성능이 높은 것을 확인할 수 있었다. <br>
+  다중 userId에 대해선 ConcurrentHashMap로 구현할 경우 다른 userId에 대한 blocking이 발생하지 않아<br>
+  성능이 높은 것을 확인할 수 있었다. <br>
 
 - 따라서, 멀티 스레드 환경에서 다중 userId에 대한 동시성 제어를 위해 ConcurrentHashMap을 사용하는 것이 적합하다. <br>
   하지만 실 서비스에서는 실제 DB가 주어지고 DB에서 제공하는 동시성 제어 기능을 사용할 수 있다. <br>
