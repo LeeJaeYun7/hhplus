@@ -201,18 +201,18 @@ public class ReentrantLockPointServiceImpl implements PointService {
 }
 ```
 
-이 예시에서는 ReentrantLock을 사용하여 더 세밀한 제어를 가능하게 한다. <br>
-try-finally 블록을 사용하여 예외 발생 시에도 반드시 lock이 해제되도록 보장한다. <br>
+- 이 예시에서는 ReentrantLock을 사용하여 더 세밀한 제어를 가능하게 한다. <br>
+- try-finally 블록을 사용하여 예외 발생 시에도 반드시 lock이 해제되도록 보장한다. <br>
 
 #### 4.3 Atomic 클래스
 - Atomic 클래스는 원자적 연산을 제공하여 동시성 문제를 해결한다. 이 경우, UserPoint 클래스를 수정하여 AtomicInteger를 사용해야 한다.
 
 (1)특징
-- CAS(Compare-And-Swap) 알고리즘 기반
-- lock-free 구현으로 성능 향상
+- CAS(Compare-And-Swap) 알고리즘 기반 <br>
+- lock-free 구현으로 성능 향상 <br> 
 
 ##### 상세 예시:
-이전 UserPoint 클래스
+이전 UserPoint 클래스 <br> 
 ```
 public record UserPoint(
     long id,
@@ -259,7 +259,7 @@ public record UserPoint(
   }
 }
 ```
-예시
+##### 예시
 ```
 public class AtomicUserPoint {
 
@@ -330,16 +330,16 @@ public class AtomicUserPoint {
   }
 }
 ```
-- 이 예시에서는 AtomicInteger를 사용하여 잔액을 관리한다.
-- compareAndSet() 메서드를 사용하여 원자적 연산을 수행하므로, 별도의 동기화 없이도 스레드 안전성을 보장한다.
+- 이 예시에서는 AtomicInteger를 사용하여 잔액을 관리한다. <br>
+- compareAndSet() 메서드를 사용하여 원자적 연산을 수행하므로, 별도의 동기화 없이도 스레드 안전성을 보장한다. <br>
 
 #### 4.4 ConcurrentHashMap
 - ConcurrentHashMap은 동시성을 지원하는 HashMap 구현체다. <br>
 
-(1) 특징
-- 세그먼트 단위의 lock 사용으로 성능 향상
-- 동시 읽기 작업에 대해 lock 불필요
-- 안전한 동시성 보장
+(1) 특징 
+- 세그먼트 단위의 lock 사용으로 성능 향상 <br>
+- 동시 읽기 작업에 대해 lock 불필요 <br>
+- 안전한 동시성 보장 <br> 
 
 ##### 상세 예시
 ```
@@ -401,23 +401,28 @@ public class ConcurrentHashMapPointPointServiceImpl implements PointService {
 
 
 #### 5. 비교
-synchronized, ReentrantLock, Atomic 클래스, ConcurrentHashMap 등 다양한 동시성 제어 방법이 있지만, 각 방법은 장단점이 있다. 각 성능 비교를 위해 charge 메서드를 100번 호출하는 테스트를 수행하였다.
+- synchronized, ReentrantLock, Atomic 클래스, ConcurrentHashMap 등 다양한 동시성 제어 방법이 있지만, 각 방법은 장단점이 있다. <br>
+- 각 성능 비교를 위해 charge 메서드를 100번 호출하는 테스트를 수행하였다. <br>
 
-synchronized
-단순하게 사용할 수 있지만 메소드 전체에 lock이 걸리므로 다른 userId에 대한 charge 메서드 호출이 블록되어 성능 저하가 발생할 수 있다.
-ReentrantLock
-synchronized보다 세밀한 제어가 가능하며, try-finally 블록을 사용하여 lock 해제를 보장할 수 있다.
-하지만 synchronized보다 코드가 복잡해지고, lock을 해제하지 않는 실수가 발생할 수 있다.
-ReentrantLock을 단독으로만 사용할 경우 synchronized와 마찬가지로 다른 userId에 대한 charge 메서드 호출이 블록될 수 있다.
-Atomic 클래스
-lock-free 구현으로 성능이 우수하다.
-하지만 UserPoint 클래스를 수정해야 하며, Table code도 수정해야 한다.
-과제 요구사항에서 Table code 수정을 하면 안된다고 명시되어 있으므로 pass.
-물론 Table code를 수정을안하고 Table 코드를 래핑하거나 또 다른 방법이 있을 수 있지만 그렇게 되면 코드가 복잡해질 수 있고 ROI가 낮을 거라고 생각했다.
-ConcurrentHashMap
-userId 별로 lock을 관리하여 다른 userId에 대한 charge 메서드 호출이 블록되지 않는다.
-하지만 ConcurrentHashMap을 사용하면서 lock을 관리하는 코드가 복잡해질 수 있다.
-성능 비교
+##### synchronized
+- 단순하게 사용할 수 있지만 메소드 전체에 lock이 걸리므로 다른 userId에 대한 charge 메서드 호출이 블록되어 성능 저하가 발생할 수 있다. <br>
+
+##### ReentrantLock
+- synchronized보다 세밀한 제어가 가능하며, try-finally 블록을 사용하여 lock 해제를 보장할 수 있다. <br>
+  하지만 synchronized보다 코드가 복잡해지고, lock을 해제하지 않는 실수가 발생할 수 있다. <br> 
+  ReentrantLock을 단독으로만 사용할 경우 synchronized와 마찬가지로 다른 userId에 대한 charge 메서드 호출이 블록될 수 있다. <br> 
+
+##### Atomic 클래스
+- lock-free 구현으로 성능이 우수하다.
+- 하지만 UserPoint 클래스를 수정해야 하며, Table code도 수정해야 한다.
+- 과제 요구사항에서 Table code 수정을 하면 안된다고 명시되어 있으므로 pass.
+- 물론 Table code를 수정을안하고 Table 코드를 래핑하거나 또 다른 방법이 있을 수 있지만 그렇게 되면 코드가 복잡해질 수 있고 ROI가 낮을 거라고 생각했다.
+
+##### ConcurrentHashMap
+- userId 별로 lock을 관리하여 다른 userId에 대한 charge 메서드 호출이 블록되지 않는다.
+- 하지만 ConcurrentHashMap을 사용하면서 lock을 관리하는 코드가 복잡해질 수 있다.
+
+#### 성능 비교
 동일 userId에 대한 charge 메서드 호출을 100번 반복하여 성능을 측정하였다.
 
 synchronized: 100번 호출에 대한 시간 41.9s
