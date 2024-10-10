@@ -176,55 +176,89 @@ public class PointService {
 
 ##### 상세 예시:
 ```
+package io.hhplus.tdd.point.service;
+
+import io.hhplus.tdd.database.PointHistoryTable;
+import io.hhplus.tdd.database.UserPointTable;
+import io.hhplus.tdd.point.PointHistory;
+import io.hhplus.tdd.point.TransactionType;
+import io.hhplus.tdd.point.UserPoint;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 @Service
-@RequiredArgsConstructor
-public class ReentrantLockPointServiceImpl implements PointService {
+public class PointService {
+    private final UserPointTable userPointTable;
+    private final PointHistoryTable pointHistoryTable;
+    private final ConcurrentHashMap<Long, Lock> lockMap;
+    public PointService(UserPointTable userPointTable, PointHistoryTable pointHistoryTable, ConcurrentHashMap<Long, Lock> lockMap){
+        this.userPointTable = userPointTable;
+        this.pointHistoryTable = pointHistoryTable;
+        this.lockMap = lockMap;
+    }
 
-    private final PointRepository pointRepository;
-    private final PointHistoryRepository pointHistoryRepository;
-    private final ReentrantLock lock = new ReentrantLock();
+    public UserPoint getUserPoint(long id){
+        return userPointTable.selectById(id);
+    }
 
-    @Override
-    public UserPoint charge(UserPointCommand.Charge command) {
+    public List<PointHistory> getUserPointHistories(long id){
+        return pointHistoryTable.selectAllByUserId(id);
+    }
+
+    public Lock getLockForId(long id){
+        lockMap.putIfAbsent(id, new ReentrantLock());
+        return lockMap.get(id);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public UserPoint chargeUserPoint(long id, long amount) throws Exception {
+        Lock lock = getLockForId(id);
         lock.lock();
+
         try {
-            final var userPoint = pointRepository.findById(command.userId())
-                .orElseThrow(() -> new BusinessException(PointErrorCode.USER_POINT_NOT_FOUND));
+            UserPoint userPoint = userPointTable.selectById(id);
+            long currPoint = userPoint.point();
 
-            final var updatedUserPoint = pointRepository.update(userPoint.addPoint(command.amount()));
+            if(currPoint + amount >= 10000){
+                throw new Exception("포인트가 최대 잔고인 10000원 이상입니다.");
+            }
 
-            pointHistoryRepository.insert(
-                PointHistory.from(userPoint.id(), command.amount(), TransactionType.CHARGE,
-                    System.currentTimeMillis()));
+            userPointTable.insertOrUpdate(id, currPoint + amount);
+            pointHistoryTable.insert(id, amount, TransactionType.CHARGE, System.currentTimeMillis());
 
-            return updatedUserPoint;
+            return userPointTable.selectById(id);
         } finally {
             lock.unlock();
         }
     }
 
-    @Override
-    public UserPoint use(UserPointCommand.Use command) {
+    @Transactional(rollbackFor = Exception.class)
+    public UserPoint useUserPoint(long id, long amount) throws Exception {
+        Lock lock = getLockForId(id);
         lock.lock();
+
         try {
-            final var userPoint = pointRepository.findById(command.userId())
-                .orElseThrow(() -> new BusinessException(PointErrorCode.USER_POINT_NOT_FOUND));
+            UserPoint userPoint = userPointTable.selectById(id);
+            long currPoint = userPoint.point();
 
-            final var updatedUserPoint = pointRepository.update(userPoint.usePoint(command.amount()));
+            if (currPoint < amount) {
+                throw new Exception("포인트가 부족합니다.");
+            }
 
-            pointHistoryRepository.insert(
-                PointHistory.from(userPoint.id(), command.amount(), TransactionType.USE,
-                    System.currentTimeMillis()));
+            userPointTable.insertOrUpdate(id, currPoint - amount);
+            pointHistoryTable.insert(id, amount, TransactionType.USE, System.currentTimeMillis());
 
-            return updatedUserPoint;
+            return userPointTable.selectById(id);
         } finally {
             lock.unlock();
         }
     }
-
-    // getUserPoint와 getUserPointHistories 메서드는 읽기 전용이므로 lock 불필요
-}
-```
+}```
 
 - 이 예시에서는 ReentrantLock을 사용하여 더 세밀한 제어를 가능하게 한다. <br>
 - try-finally 블록을 사용하여 예외 발생 시에도 반드시 lock이 해제되도록 보장한다. <br>
