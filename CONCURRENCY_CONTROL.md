@@ -97,8 +97,8 @@ public class PointServiceImpl implements PointService {
 - 간단하고 직관적인 사용법
 - 메서드 전체 또는 특정 블록에 적용 가능
 - 자동으로 lock 획득 및 해제
-- 상세 예시
 
+##### 상세 예시
 ```
 @Service
 @RequiredArgsConstructor
@@ -142,14 +142,14 @@ public class SynchronizedPointServiceImpl implements PointService {
 - 이 방식은 charge와 use 메서드에 synchronized 키워드를 추가하여 한 번에 하나의 스레드만 이 메서드들을 실행할 수 있도록 한다.<br> 
 
 #### 4.2 ReentrantLock
-- ReentrantLock은 더 유연한 lock 메커니즘을 제공한다.
+- ReentrantLock은 더 유연한 lock 메커니즘을 제공한다. <br>
 
-(1)특징
-- 명시적인 lock 획득 및 해제
-- tryLock() 메서드를 통한 타임아웃 설정 가능
-- 공정성 옵션 제공
+(1)특징 <br>
+- 명시적인 lock 획득 및 해제 <br>
+- tryLock() 메서드를 통한 타임아웃 설정 가능 <br>
+- 공정성 옵션 제공 <br> 
 
-상세 예시:
+##### 상세 예시:
 ```
 @Service
 @RequiredArgsConstructor
