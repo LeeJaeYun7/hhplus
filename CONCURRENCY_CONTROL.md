@@ -28,13 +28,13 @@
 
 위의 이미지는 lost update 문제를 설명한 것이다.
 
-(1) Charge 메서드의 동시 실행: 하나의 userId에 대해 여러 스레드가 동시에 Charge 메서드를 실행할 때,<br> 
+- Charge 메서드의 동시 실행: 하나의 userId에 대해 여러 스레드가 동시에 Charge 메서드를 실행할 때,<br> 
                               Lost Update 문제가 발생할 수 있고 history가 순차적으로 저장되지 않을 수 있다. <br>
 
-(2) Use 메서드의 동시 실행: 하나의 userId에 대해 여러 스레드가 동시에 Use 메서드를 실행할 때,<br> 
+- Use 메서드의 동시 실행: 하나의 userId에 대해 여러 스레드가 동시에 Use 메서드를 실행할 때,<br> 
                           Lost Update 문제가 발생할 수 있고 history가 순차적으로 저장되지 않을 수 있다. <br>
 
-(3) Charge와 Use 메서드의 동시 실행: Charge와 Use 메서드가 동시에 실행될 때,<br> 
+- Charge와 Use 메서드의 동시 실행: Charge와 Use 메서드가 동시에 실행될 때,<br> 
                                    데이터 일관성 문제가 발생할 수 있고 history가 순차적으로 저장되지 않을 수 있다. <br> 
 
 ### 4. 자바에서의 동시성 제어 방법
