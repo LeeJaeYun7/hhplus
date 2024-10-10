@@ -23,7 +23,9 @@
 - Phantom Read (유령 읽기): 한 트랜잭션에서 두번의 동일한 조회를 하였을 때, 다른 트랜잭션의 Insert로 인해 없던 데이터가 조회 문제 <br>
 
 ### 3. 과제에서 발생할 수 있는 동시성 이슈 (lost update)
-- lost update <br> 
+- lost update <br>
+- ![image](https://github.com/user-attachments/assets/70681889-9af7-4043-ac84-83d2bb0dfd66)
+
 
 위의 이미지는 lost update 문제를 설명한 것이다.
 
