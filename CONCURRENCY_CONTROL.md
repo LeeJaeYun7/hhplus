@@ -260,7 +260,8 @@ public class PointService {
             lock.unlock();
         }
     }
-}```
+}
+```
 
 - 이 예시에서는 ReentrantLock을 사용하여 더 세밀한 제어를 가능하게 한다. <br>
 - try-finally 블록을 사용하여 예외 발생 시에도 반드시 lock이 해제되도록 보장한다. <br>
