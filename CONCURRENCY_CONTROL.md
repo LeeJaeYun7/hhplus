@@ -193,9 +193,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class PointService {
+
     private final UserPointTable userPointTable;
     private final PointHistoryTable pointHistoryTable;
     private final ConcurrentHashMap<Long, Lock> lockMap;
+
     public PointService(UserPointTable userPointTable, PointHistoryTable pointHistoryTable, ConcurrentHashMap<Long, Lock> lockMap){
         this.userPointTable = userPointTable;
         this.pointHistoryTable = pointHistoryTable;
