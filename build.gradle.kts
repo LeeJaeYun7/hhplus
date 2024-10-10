@@ -27,6 +27,7 @@ dependencies {
     annotationProcessor(libs.lombok)
     annotationProcessor(libs.spring.boot.configuration.processor)
     testImplementation(libs.spring.boot.starter.test)
+    implementation(libs.spring.boot.starter.data.jpa) // JPA 관련 의존성
 }
 
 // about source and compilation
