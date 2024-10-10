@@ -108,42 +108,59 @@ public class PointService {
 
 ##### 상세 예시
 ```
+package io.hhplus.tdd.point.service;
+
+import io.hhplus.tdd.database.PointHistoryTable;
+import io.hhplus.tdd.database.UserPointTable;
+import io.hhplus.tdd.point.PointHistory;
+import io.hhplus.tdd.point.TransactionType;
+import io.hhplus.tdd.point.UserPoint;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
 @Service
-@RequiredArgsConstructor
-public class SynchronizedPointServiceImpl implements PointService {
+public class PointService {
 
-    private final PointRepository pointRepository;
-    private final PointHistoryRepository pointHistoryRepository;
+    private final UserPointTable userPointTable;
+    private final PointHistoryTable pointHistoryTable;
 
-    @Override
-    public synchronized UserPoint charge(UserPointCommand.Charge command) {
-        final var userPoint = pointRepository.findById(command.userId())
-            .orElseThrow(() -> new BusinessException(PointErrorCode.USER_POINT_NOT_FOUND));
-
-        final var updatedUserPoint = pointRepository.update(userPoint.addPoint(command.amount()));
-
-        pointHistoryRepository.insert(
-            PointHistory.from(userPoint.id(), command.amount(), TransactionType.CHARGE,
-                System.currentTimeMillis()));
-
-        return updatedUserPoint;
+    public PointService(UserPointTable userPointTable, PointHistoryTable pointHistoryTable){
+        this.userPointTable = userPointTable;
+        this.pointHistoryTable = pointHistoryTable;
     }
 
-    @Override
-    public synchronized UserPoint use(UserPointCommand.Use command) {
-        final var userPoint = pointRepository.findById(command.userId())
-            .orElseThrow(() -> new BusinessException(PointErrorCode.USER_POINT_NOT_FOUND));
-
-        final var updatedUserPoint = pointRepository.update(userPoint.usePoint(command.amount()));
-
-        pointHistoryRepository.insert(
-            PointHistory.from(userPoint.id(), command.amount(), TransactionType.USE,
-                System.currentTimeMillis()));
-
-        return updatedUserPoint;
+    public UserPoint getUserPoint(long id){
+        return userPointTable.selectById(id);
     }
 
-    // getUserPoint와 getUserPointHistories 메서드는 읽기 전용이므로 동기화 불필요
+    public List<PointHistory> getUserPointHistories(long id){
+        return pointHistoryTable.selectAllByUserId(id);
+    }
+
+    public synchronized UserPoint chargeUserPoint(long id, long amount){
+        UserPoint userPoint = userPointTable.selectById(id);
+        long currPoint = userPoint.point();
+
+        userPointTable.insertOrUpdate(id, currPoint+amount);
+        pointHistoryTable.insert(id, amount, TransactionType.CHARGE, System.currentTimeMillis());
+
+        return userPointTable.selectById(id);
+    }
+
+    public synchronized UserPoint useUserPoint(long id, long amount) throws Exception {
+        UserPoint userPoint = userPointTable.selectById(id);
+        long currPoint = userPoint.point();
+
+        if(currPoint < amount) {
+            throw new Exception();
+        }
+
+        userPointTable.insertOrUpdate(id, currPoint-amount);
+        pointHistoryTable.insert(id, amount, TransactionType.USE, System.currentTimeMillis());
+
+        return userPointTable.selectById(id);
+    }
 }
 ```
 
