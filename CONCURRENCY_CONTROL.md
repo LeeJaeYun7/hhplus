@@ -141,14 +141,16 @@ public class SynchronizedPointServiceImpl implements PointService {
 
 - 이 방식은 charge와 use 메서드에 synchronized 키워드를 추가하여 한 번에 하나의 스레드만 이 메서드들을 실행할 수 있도록 한다.<br> 
 
-3.2 ReentrantLock
-ReentrantLock은 더 유연한 lock 메커니즘을 제공한다.
+#### 4.2 ReentrantLock
+- ReentrantLock은 더 유연한 lock 메커니즘을 제공한다.
 
-특징:
-명시적인 lock 획득 및 해제
-tryLock() 메서드를 통한 타임아웃 설정 가능
-공정성 옵션 제공
+(1)특징
+- 명시적인 lock 획득 및 해제
+- tryLock() 메서드를 통한 타임아웃 설정 가능
+- 공정성 옵션 제공
+
 상세 예시:
+```
 @Service
 @RequiredArgsConstructor
 public class ReentrantLockPointServiceImpl implements PointService {
@@ -197,6 +199,8 @@ public class ReentrantLockPointServiceImpl implements PointService {
 
     // getUserPoint와 getUserPointHistories 메서드는 읽기 전용이므로 lock 불필요
 }
+```
+
 이 예시에서는 ReentrantLock을 사용하여 더 세밀한 제어를 가능하게 한다.
 try-finally 블록을 사용하여 예외 발생 시에도 반드시 lock이 해제되도록 보장한다.
 
