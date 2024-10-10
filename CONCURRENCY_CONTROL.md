@@ -39,54 +39,62 @@
 
 ### 4. 자바에서의 동시성 제어 방법
 - 자바는 다양한 동시성 제어 메커니즘을 제공한다. <br> 
--> PointServiceImpl 클래스를 예시로, 다양한 동시성 제어 방법 적용을 통해 동시성 이슈를 해결하는 방법을 살펴보자. <br> 
+-> PointService 클래스를 예시로, 다양한 동시성 제어 방법 적용을 통해 동시성 이슈를 해결하는 방법을 살펴보자. <br> 
 
 ```
+package io.hhplus.tdd.point.service;
+
+import io.hhplus.tdd.database.PointHistoryTable;
+import io.hhplus.tdd.database.UserPointTable;
+import io.hhplus.tdd.point.PointHistory;
+import io.hhplus.tdd.point.TransactionType;
+import io.hhplus.tdd.point.UserPoint;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
 @Service
-@RequiredArgsConstructor
-public class PointServiceImpl implements PointService {
+public class PointService {
 
-  private final PointRepository pointRepository;
+    private final UserPointTable userPointTable;
+    private final PointHistoryTable pointHistoryTable;
 
-  private final PointHistoryRepository pointHistoryRepository;
+    public PointService(UserPointTable userPointTable, PointHistoryTable pointHistoryTable){
+        this.userPointTable = userPointTable;
+        this.pointHistoryTable = pointHistoryTable;
+    }
 
-  @Override
-  public UserPoint charge(UserPointCommand.Charge command) {
-    final var userPoint = pointRepository.findById(command.userId())
-        .orElseThrow(() -> new BusinessException(PointErrorCode.USER_POINT_NOT_FOUND));
+    public UserPoint getUserPoint(long id){
+        return userPointTable.selectById(id);
+    }
 
-    final var updatedUserPoint = pointRepository.update(userPoint.addPoint(command.amount()));
+    public List<PointHistory> getUserPointHistories(long id){
+        return pointHistoryTable.selectAllByUserId(id);
+    }
 
-    pointHistoryRepository.insert(
-        PointHistory.from(userPoint.id(), command.amount(), TransactionType.CHARGE,
-            System.currentTimeMillis()));
+    public synchronized UserPoint chargeUserPoint(long id, long amount){
+        UserPoint userPoint = userPointTable.selectById(id);
+        long currPoint = userPoint.point();
 
-    return updatedUserPoint;
-  }
+        userPointTable.insertOrUpdate(id, currPoint+amount);
+        pointHistoryTable.insert(id, amount, TransactionType.CHARGE, System.currentTimeMillis());
 
-  @Override
-  public UserPoint use(UserPointCommand.Use command) {
-    final var userPoint = pointRepository.findById(command.userId())
-        .orElseThrow(() -> new BusinessException(PointErrorCode.USER_POINT_NOT_FOUND));
+        return userPointTable.selectById(id);
+    }
 
-    final var updatedUserPoint = pointRepository.update(userPoint.usePoint(command.amount()));
+    public synchronized UserPoint useUserPoint(long id, long amount) throws Exception {
+        UserPoint userPoint = userPointTable.selectById(id);
+        long currPoint = userPoint.point();
 
-    pointHistoryRepository.insert(
-        PointHistory.from(userPoint.id(), command.amount(), TransactionType.USE,
-            System.currentTimeMillis()));
+        if(currPoint < amount) {
+            throw new Exception();
+        }
 
-    return updatedUserPoint;
-  }
+        userPointTable.insertOrUpdate(id, currPoint-amount);
+        pointHistoryTable.insert(id, amount, TransactionType.USE, System.currentTimeMillis());
 
-  @Override
-  public UserPoint getUserPoint(UserPointCommand.GetUserPoint command) {
-    return pointRepository.findById(command.userId()).orElse(null);
-  }
-
-  @Override
-  public List<PointHistory> getUserPointHistories(GetUserPointHistories command) {
-    return pointHistoryRepository.findAllByUserId(command.userId());
-  }
+        return userPointTable.selectById(id);
+    }
 }
 ```
 
